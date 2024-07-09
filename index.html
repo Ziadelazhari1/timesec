@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0055)file:///C:/Users/drabd/OneDrive/Documents/timersec.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Countdown Timer and Notifications</title>
     <style>
@@ -43,6 +43,22 @@
             text-align: center;
             max-width: 80%;
         }
+        .loading-bar-container {
+            width: 80%;
+            background-color: #444;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .loading-bar {
+            width: 0;
+            height: 30px;
+            background-color: #76c7c0;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 30px;
+            color: #000;
+            font-weight: bold;
+        }
 
         /* Media queries for responsive design */
         @media (max-width: 768px) {
@@ -57,38 +73,56 @@
                 font-size: 1em; /* Adjust font size for smaller screens */
                 margin-top: 10px; /* Reduce top margin */
             }
+            .loading-bar-container {
+                width: 90%;
+            }
+            .loading-bar {
+                height: 25px;
+                line-height: 25px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="heading">Seconds till midnight:</div>
-    <div class="timer" id="timer">24237</div>
-    <div class="future-timer" id="future-timer">Seconds till 5 years from now: 157766400</div>
+    <div class="timer" id="timer"></div>
+    <div class="future-timer" id="future-timer"></div>
+    <div class="loading-bar-container">
+        <div class="loading-bar" id="loading-bar"></div>
+    </div>
     <div class="quote">"The key is in not spending time, but in investing it." - Stephen R. Covey</div>
 
     <script>
         function updateCountdown() {
-            // Countdown till midnight
-            const startOfDay = new Date();
-            startOfDay.setHours(0, 0, 0, 0); // Set to midnight of the current day
-            const endOfDay = new Date(startOfDay);
-            endOfDay.setHours(24, 0, 0, 0); // Set to the next midnight
-
+            // Current time and end of the day
             const now = new Date();
-            const timeRemaining = Math.floor((endOfDay - now) / 1000); // Calculate remaining time in seconds
+            const endOfDay = new Date(now);
+            endOfDay.setHours(24, 0, 0, 0);
 
+            // Time remaining till midnight
+            const timeRemaining = Math.floor((endOfDay - now) / 1000);
             document.getElementById('timer').innerHTML = timeRemaining;
+
+            // Time elapsed since the start of the day
+            const startOfDay = new Date(now);
+            startOfDay.setHours(0, 0, 0, 0);
+            const timeElapsed = now - startOfDay;
+            const totalTime = endOfDay - startOfDay;
+            const percentageOfDayPassed = (timeElapsed / totalTime) * 100;
+
+            // Update loading bar
+            const loadingBar = document.getElementById('loading-bar');
+            loadingBar.style.width = percentageOfDayPassed + '%';
+            loadingBar.innerHTML = Math.floor(percentageOfDayPassed) + '%';
 
             // Countdown for 5 years into the future
             const futureDate = new Date(now);
-            futureDate.setFullYear(now.getFullYear() + 5); // Set to 5 years in the future
-
-            const timeRemainingFuture = Math.floor((futureDate - now) / 1000); // Calculate remaining time in seconds
-
+            futureDate.setFullYear(now.getFullYear() + 5);
+            const timeRemainingFuture = Math.floor((futureDate - now) / 1000);
             document.getElementById('future-timer').innerHTML = `Seconds till 5 years from now: ${timeRemainingFuture}`;
 
             // Send notification every 5 minutes with countdown till midnight
-            if (now.getMinutes() % 1 === 0 && now.getSeconds() === 0) {
+            if (now.getMinutes() % 5 === 0 && now.getSeconds() === 0) {
                 sendNotification(`Seconds left till midnight: ${timeRemaining}`);
             }
         }
@@ -126,6 +160,5 @@
         // Update countdown and schedule notifications every second
         setInterval(updateCountdown, 1000);
     </script>
-
-
-</body></html>
+</body>
+</html>
